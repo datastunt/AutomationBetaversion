@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WP Automation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        form {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .custom-file-label::after {
+            content: "Browse";
+        }
+
+        .custom-file-input:focus ~ .custom-file-label::after {
+            border-color: #80bdff;
+        }
+
+        #startJobButton {
+            display: block;
+        }
+
+        #qrcodeImagePopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WA Automation</h1>
+
+    <div id="qrcodeImagePopup" style="display: none;">
+        <img src="" alt="QR Code" id="qrCodeImg">
+    </div>
+
+    <form id="automationForm" method="post" action="/automation" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="media_content_">Upload Media Content (Image/Video)</label>
+            <div class="custom-file">
+                <label class="custom-file-label" for="media_content_" id="media_content_label">Choose file</label>
+                <input type="file" class="custom-file-input" id="media_content_" name="media_content" accept=".jpg, .jpeg, .png, .mp4" onchange="updateMediaContentLabel(this)" >
+                <div class="invalid-feedback">Please select a file.</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="message">Write or Copy/Paste Message</label>
+            <textarea class="form-control" id="message" name="message" rows="4"></textarea>
+        </div>
+
+        <br>
+        <br>
+
+        <div class="form-group">
+            <label for="bulkFile_">Upload Excel File<span style="color: red;">*</span></label>
+            <div class="custom-file">
+                <label class="custom-file-label" for="bulkFile_" id="bulkFile_label">Choose File</label>
+                <input type="file" class="custom-file-input" id="bulkFile_" name="bulkFile" accept=".xls, .xlsx, .csv" onchange="updateExcelContentLabel(this)" required>
+                <div class="invalid-feedback">Please select a file.</div>
+            </div>
+        </div>
+
+
+
+
+
+        <button type="button" class="btn btn-primary" id="loginButton" onclick="showQRCode()">Login</button>
+                <button type="submit" class="btn btn-primary">Start Job</button>
+
+<!--        <button id="startJobButton" type="button" class="btn btn-primary"  onclick="startJob()">Start Job</button>-->
+    </form>
+    <form action="/download-vcf" method="post" enctype="multipart/form-data">
+        <input type="file" name="excelFile" accept=".xls, .xlsx">
+        <button type="submit">Download vCard</button>
+    </form>
+<script>
+    function updateMediaContentLabel(input) {
+        var label = document.getElementById('media_content_label');
+        label.innerText = input.files[0].name;
+    }
+
+    function updateExcelContentLabel(input) {
+        var label = document.getElementById('bulkFile_label');
+        label.innerText = input.files[0].name;
+    }
+
+ function showQRCode() {
+        fetch('/qrcode') // Call the API to get the QR code image
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('QR code image received:', data.qrcode);
+                var qrCodeImg = document.getElementById('qrCodeImg');
+                qrCodeImg.src = data.qrcode; // Update the QR code image source
+                document.getElementById('qrcodeImagePopup').style.display = 'block'; // Show the QR code popup
+
+                // Hide the QR code popup after 15 seconds
+                setTimeout(function() {
+                    hideQRCode();
+                }, 15000); // 15 seconds in milliseconds
+
+                // Add event listener to hide QR code when clicked anywhere
+                document.body.addEventListener('click', hideQRCodeOnClick);
+            })
+            .catch(error => {
+                console.error('Error fetching QR code:', error);
+            });
+    }
+
+    function hideQRCodeOnClick() {
+        hideQRCode();
+        document.body.removeEventListener('click', hideQRCodeOnClick);
+    }
+
+    function hideQRCode() {
+        document.getElementById('qrcodeImagePopup').style.display = 'none';
+        document.getElementById('loginButton').style.display = 'block';
+    }
+
+<!--    function startJob() {-->
+<!--        var formData = new FormData(document.getElementById("automationForm"));-->
+
+<!--        fetch('/automation', {-->
+<!--            method: 'POST',-->
+<!--            body: formData-->
+<!--        })-->
+<!--        .then(response => response.text())-->
+<!--        .then(data => {-->
+<!--            // Handle the response here if needed-->
+<!--            console.log(data);-->
+<!--        })-->
+<!--        .catch(error => {-->
+<!--            console.error('Error starting job:', error);-->
+<!--        });-->
+<!--    }-->
+</script>
+</body>
+</html>
