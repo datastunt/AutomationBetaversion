@@ -29,7 +29,7 @@ contact_persons = ""
 def run_automation(bulk_file, media, text):
     try:
 
-        time.sleep(10.5)
+        time.sleep(20.5)
 
         if not terminate_flag:
             if media:
@@ -149,7 +149,7 @@ def bulk_file_management(bulk_file, media, text):
                                 # Click the send button
                                 send_button.click()
 
-                            if text:
+                            if text and not media:
                                 send_button_selector = 'button[aria-label="Send"].x1c4vz4f.x2lah0s.xdl72j9.xfect85.x1iy03kw.x1lfpgzf'
                                 send_button = driver.find_element(By.CSS_SELECTOR, send_button_selector)
                                 send_button.click()

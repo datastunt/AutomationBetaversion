@@ -26,6 +26,7 @@ def automation():
 
 @app.route("/qrcode", methods=['GET'])
 def get_qrcode_scanner():
+
     # Generate and return the QR code scanner
     qrcode = take_qr_code_screenshot()
     return jsonify({'qrcode': qrcode})
