@@ -133,6 +133,7 @@ def bulk_file_management(bulk_file, media, text):
                                 # Wait for the parent li element to be present in the DOM
                                 # select_media = driver.find_element(By.CSS_SELECTOR, "div.x1c4vz4f.xs83m0k.xdl72j9.x1g77sc7.x78zum5.xozqiw3.x1oa3qoh.x12fk4p8.xeuugli.x2lwn1j.x1nhvcw1.x1q0g3np.x6s0dn4.x1ypdohk.x1vqgdyp.x1i64zmx.x1gja9t")
                                 # Click the input element to trigger the file selection dialog
+
                                 select_media_input = driver.find_element(By.CSS_SELECTOR,
                                                                          "input[type='file'][accept='image/*,video/mp4,video/3gpp,video/quicktime']")
                                 media_absolute_path = os.path.abspath(media)
@@ -142,11 +143,16 @@ def bulk_file_management(bulk_file, media, text):
 
                             time.sleep(3.5)
 
+                            if text and media or media:
                             # To send message
-                            # Find the send button by aria-label
-                            send_button = driver.find_element(By.CSS_SELECTOR, "#app > div > div.two._aigs > div._aigu > div._aigv._aigz > span > div > span > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x1hc1fzr.x6ikm8r.x10wlt62 > div > div._ajwz > div._ajx2 > div > div > span")
-                            # Click the send button
-                            send_button.click()
+                                send_button = driver.find_element(By.CSS_SELECTOR, "#app > div > div.two._aigs > div._aigu > div._aigv._aigz > span > div > span > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x1hc1fzr.x6ikm8r.x10wlt62 > div > div._ajwz > div._ajx2 > div > div > span")
+                                # Click the send button
+                                send_button.click()
+
+                            if text:
+                                send_button_selector = 'button[aria-label="Send"].x1c4vz4f.x2lah0s.xdl72j9.xfect85.x1iy03kw.x1lfpgzf'
+                                send_button = driver.find_element(By.CSS_SELECTOR, send_button_selector)
+                                send_button.click()
 
                             timestamp = datetime.now().strftime('%H:%M:%S %d-%m-%Y')
                             avlbl_contact_data = {'JobID': jobid,

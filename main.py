@@ -20,6 +20,7 @@ def automation():
     bulk_file = request.files.get('bulkFile')
     run_automation(bulk_file, media, text)
     tasks = {"completed_task": completed_task, "uncompleted_task": uncompleted_task, "contact_length": contact_persons}
+    print(uncompleted_task)
     return render_template('logs_table.html', result=tasks)
 
 
