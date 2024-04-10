@@ -10,7 +10,7 @@ WORKDIR /app
 COPY main.py /app/
 COPY engine.py /app/
 COPY datastorage.py /app/
-COPY config.py /app/
+COPY webdriver_setup.py /app/
 COPY templates /app/templates
 COPY static /app/static
 COPY error_log.txt /app/error_log.txt
