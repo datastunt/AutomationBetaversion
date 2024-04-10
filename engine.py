@@ -1,22 +1,22 @@
 import io
 import os
+import sys
 import time
 import random
 import string
-from io import BytesIO
-from PIL import Image
-import sys
 import matplotlib
 import pandas as pd
+from PIL import Image
+from io import BytesIO
 from datetime import datetime
+from webdriver_setup import *
 from googletrans import Translator
 from matplotlib import pyplot as plt
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.common import NoSuchElementException
-from config import *
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 from datastorage import uncompleted_contact, completed_contact, current_contact_data_status
 
 matplotlib.use('Agg')
@@ -28,7 +28,6 @@ contact_persons = ""
 
 def run_automation(bulk_file, media, text):
     try:
-
         time.sleep(20.5)
 
         if not terminate_flag:
@@ -48,6 +47,8 @@ def run_automation(bulk_file, media, text):
 
 def bulk_file_management(bulk_file, media, text):
     global contact_persons
+    global completed_task
+    global uncompleted_task
     if bulk_file and not terminate_flag:
         try:
             jobid = generate_job_id()
@@ -98,8 +99,7 @@ def bulk_file_management(bulk_file, media, text):
                                 unavlbl_contact_data = {'JobID': jobid,
                                                         'contact': name,
                                                         'status': "Unavailable on WhatsApp.",
-                                                        'timestamp': timestamp
-                                                        }
+                                                        'timestamp': timestamp}
                                 current_contact_data_status([unavlbl_contact_data])
                                 uncompleted_contact([unavlbl_contact_data])
                                 uncompleted_task.append(unavlbl_contact_data)
@@ -164,7 +164,7 @@ def bulk_file_management(bulk_file, media, text):
                             completed_contact([avlbl_contact_data])
                             completed_task.append(avlbl_contact_data)
                         except Exception as e:
-                            print(e)
+                            pass
                     except Exception as e:
                         error_msg = f"Error occurred during processing contact : "
                         print(error_msg, e)
@@ -181,7 +181,7 @@ def bulk_file_management(bulk_file, media, text):
             os.remove(bulk_file)
             if media:
                 os.remove(media)
-            driver.quit()
+            driver.close()
 
 
 def extracting_contacts(bulk_file):

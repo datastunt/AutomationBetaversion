@@ -1,9 +1,10 @@
 import shutil
 import zipfile
-import io
 from engine import *
+from webdriver_setup import *
 from datastorage import trace_current_status
 from flask import Flask, render_template, request, Response, jsonify, send_file
+
 
 app = Flask(__name__)
 
@@ -26,7 +27,6 @@ def automation():
 
 @app.route("/qrcode", methods=['GET'])
 def get_qrcode_scanner():
-
     # Generate and return the QR code scanner
     qrcode = take_qr_code_screenshot()
     return jsonify({'qrcode': qrcode})
