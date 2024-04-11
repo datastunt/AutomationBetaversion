@@ -4,6 +4,7 @@ import sys
 import time
 import random
 import string
+import functools
 import matplotlib
 import pandas as pd
 from PIL import Image
@@ -24,10 +25,55 @@ terminate_flag = False
 completed_task = []
 uncompleted_task = []
 contact_persons = ""
+outer_driver = None
+
+
+def handle_request(request_type):
+    global outer_driver
+    if request_type == "take_qr_code_screenshot":
+        global_driver = firefox_browser()
+        driver = global_driver
+        global outer_driver
+        outer_driver = driver
+        return outer_driver
+    if request_type == "run_automation" and outer_driver is not None:
+        return outer_driver
+    elif request_type == "automation" and outer_driver is None:
+        global_driver = firefox_browser()
+        driver = global_driver
+        return driver
+    pass
+
+
+def take_qr_code_screenshot():
+    driver = handle_request("take_qr_code_screenshot")
+    driver.get("https://web.whatsapp.com/")
+    qr_code_element = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
+    # Get the location and size of the QR code element
+    location = qr_code_element.location
+    size = qr_code_element.size
+
+    # Take a screenshot of the QR code area
+    qr_code_screenshot = driver.get_screenshot_as_png()
+    qr_code_image = Image.open(BytesIO(qr_code_screenshot))
+    left = location['x']
+    top = location['y']
+    right = location['x'] + size['width']
+    bottom = location['y'] + size['height']
+    qr_code_image = qr_code_image.crop((left, top, right, bottom))
+
+    # Save the image to a file
+    qr_code_image_path = "static/whatsapp_qr_code.png"
+    qr_code_image.save(qr_code_image_path)
+    # Return the path to the image file
+    return qr_code_image_path
 
 
 def run_automation(bulk_file, media, text):
     try:
+        driver = handle_request("run_automation")
+        driver.get("https://web.whatsapp.com/")
         time.sleep(20.5)
 
         if not terminate_flag:
@@ -36,7 +82,7 @@ def run_automation(bulk_file, media, text):
                 media = media.filename
             else:
                 media = None
-            bulk_file_management(bulk_file, media, text)
+            bulk_file_management(driver, bulk_file, media, text)
         else:
             sys.exit()
     except Exception as e:
@@ -45,7 +91,7 @@ def run_automation(bulk_file, media, text):
         log_error(error_msg)
 
 
-def bulk_file_management(bulk_file, media, text):
+def bulk_file_management(driver, bulk_file, media, text):
     global contact_persons
     global completed_task
     global uncompleted_task
@@ -199,32 +245,6 @@ def job_time():
     if current_hour < 5 or current_hour >= 22:
         return True
     return False
-
-
-def take_qr_code_screenshot():
-    # Find the QR code element
-    link = "https://web.whatsapp.com/"
-    driver.get(link)
-    qr_code_element = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
-    # Get the location and size of the QR code element
-    location = qr_code_element.location
-    size = qr_code_element.size
-
-    # Take a screenshot of the QR code area
-    qr_code_screenshot = driver.get_screenshot_as_png()
-    qr_code_image = Image.open(BytesIO(qr_code_screenshot))
-    left = location['x']
-    top = location['y']
-    right = location['x'] + size['width']
-    bottom = location['y'] + size['height']
-    qr_code_image = qr_code_image.crop((left, top, right, bottom))
-
-    # Save the image to a file
-    qr_code_image_path = "static/whatsapp_qr_code.png"
-    qr_code_image.save(qr_code_image_path)
-    # Return the path to the image file
-    return qr_code_image_path
 
 
 # Function to log errors

@@ -3,8 +3,7 @@ import zipfile
 from engine import *
 from webdriver_setup import *
 from datastorage import trace_current_status
-from flask import Flask, render_template, request, Response, jsonify, send_file
-
+from flask import Flask, render_template, request, Response, send_file, jsonify
 
 app = Flask(__name__)
 
@@ -106,4 +105,4 @@ def download_vcf():
 
 if __name__ == "__main__":
     # Get the port from the environment variable, defaulting to 8080 if not set
-    app.run(port=8080)
+    app.run(port=8080, host="0.0.0.0")

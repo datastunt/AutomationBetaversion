@@ -70,3 +70,17 @@ onPacket/<@chrome://remote/content/marionette/server.sys.mjs:262:20
 onPacket@chrome://remote/content/marionette/server.sys.mjs:263:9
 _onJSONObjectReady/<@chrome://remote/content/marionette/transport.sys.mjs:494:20
 
+2024-04-11 18:27:54: Error occurred during processing contact : 
+2024-04-11 18:28:04: Error occurred during processing contact : 
+2024-04-11 18:28:15: Error occurred during processing contact : 
+2024-04-11 18:28:25: Error occurred during processing contact : 
+2024-04-11 18:28:35: Error occurred during processing contact : 
+2024-04-11 18:28:45: Error occurred during processing contact : 
+2024-04-11 18:28:55: Error occurred during processing contact : 
+2024-04-11 19:18:14: Error occurred during processing contact : 
+2024-04-11 19:18:14: Error occurred during processing contact : 
+2024-04-11 19:18:14: Error occurred during processing contact : 
+2024-04-11 19:18:14: Error occurred during processing contact : 
+2024-04-11 19:18:14: Error occurred during processing contact : 
+2024-04-11 19:18:14: Error occurred during opening WhatsApp link: : Message: Tried to run command without establishing a connection
+
