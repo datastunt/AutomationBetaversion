@@ -120,6 +120,7 @@ def take_qr_code_screenshot():
 
 def check_user():
     driver = handle_request("check_user")
+    time.sleep(2.9)
     try:
         select_user = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR,
                                                                                      "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")))

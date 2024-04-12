@@ -37,6 +37,7 @@ def checker():
     user = check_user()
     return jsonify({"user": user})
 
+
 @app.route("/logout", methods=['GET'])
 def logout():
     user_logout()
