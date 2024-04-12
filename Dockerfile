@@ -33,12 +33,13 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Download and install geckodriver
+# Download and install geckodriver
 ARG GECKODRIVER_VERSION=0.34.0
 RUN apt-get update && apt-get install -y wget unzip && \
-    wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-win64.zip && \
-    unzip geckodriver-v${GECKODRIVER_VERSION}-win64.zip && \
-    mv geckodriver.exe /usr/local/bin/ && \
-    rm geckodriver-v${GECKODRIVER_VERSION}-win64.zip && \
+    wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
+    tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
+    mv geckodriver /usr/local/bin/ && \
+    rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
