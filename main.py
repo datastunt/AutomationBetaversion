@@ -20,6 +20,7 @@ def automation():
     bulk_file = request.files.get('bulkFile')
     run_automation(bulk_file, media, text)
     tasks = {"completed_task": completed_task, "uncompleted_task": uncompleted_task, "contact_length": contact_persons}
+    print("contact_persons", contact_persons)
     print(uncompleted_task)
     return render_template('logs_table.html', result=tasks)
 
@@ -31,6 +32,17 @@ def get_qrcode_scanner():
     return jsonify({'qrcode': qrcode})
 
 
+@app.route("/checker", methods=['GET'])
+def checker():
+    user = check_user()
+    return jsonify({"user": user})
+
+@app.route("/logout", methods=['GET'])
+def logout():
+    user_logout()
+    return render_template('index.html')
+
+
 @app.route("/job_update", methods=["GET"])
 def job_update():
     last_contact = trace_current_status()
@@ -39,12 +51,8 @@ def job_update():
 
 @app.route("/kill_automation", methods=['GET'])
 def kill_automation_route():
-    res = kill_automation()
-    print(res)
-    if not res:
-        return render_template('index.html')
-    else:
-        return render_template('index.html')
+    kill_automation()
+    return render_template('index.html')
 
 
 @app.route('/download_pdf')

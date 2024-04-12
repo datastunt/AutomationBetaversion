@@ -4,7 +4,6 @@ import sys
 import time
 import random
 import string
-import functools
 import matplotlib
 import pandas as pd
 from PIL import Image
@@ -15,7 +14,7 @@ from googletrans import Translator
 from matplotlib import pyplot as plt
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common import NoSuchElementException
+from selenium.common import NoSuchElementException, InvalidSessionIdException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datastorage import uncompleted_contact, completed_contact, current_contact_data_status
@@ -29,47 +28,128 @@ outer_driver = None
 
 
 def handle_request(request_type):
-    global outer_driver
-    if request_type == "take_qr_code_screenshot":
-        global_driver = firefox_browser()
-        driver = global_driver
+    try:
         global outer_driver
-        outer_driver = driver
+        if request_type == "take_qr_code_screenshot" and outer_driver is None:
+            global_driver = firefox_browser()
+            global_driver.get("https://web.whatsapp.com/")
+            outer_driver = global_driver
+            return outer_driver
+        elif request_type == "take_qr_code_screenshot" and outer_driver is not None:
+            outer_driver.get("https://web.whatsapp.com/")
+            return outer_driver
+        elif request_type == "run_automation" and outer_driver is not None:
+            return outer_driver
+        elif request_type == "run_automation" and outer_driver is None:
+            global_driver = firefox_browser()
+            driver = global_driver
+            return driver
+        elif request_type == "user_logout" and outer_driver is not None:
+            driver = outer_driver
+            return driver
+        elif request_type == "user_logout" and outer_driver is None:
+            global_driver = firefox_browser()
+            global_driver.get("https://web.whatsapp.com/")
+            driver = global_driver
+            return driver
+        elif request_type == "check_user" and outer_driver is not None:
+            driver = outer_driver
+            return driver
+        elif request_type == "check_user" and outer_driver is None:
+            global_driver = firefox_browser()
+            global_driver.get("https://web.whatsapp.com/")
+            driver = global_driver
+            return driver
+        else:
+            raise ValueError("Invalid request_type")
+    except InvalidSessionIdException:
+        # Retry the operation by calling handle_request with the same request_type
+        outer_driver = firefox_browser()
+        outer_driver.get("https://web.whatsapp.com/")
         return outer_driver
-    if request_type == "run_automation" and outer_driver is not None:
+    except RecursionError:
+        outer_driver = firefox_browser()
+        outer_driver.get("https://web.whatsapp.com/")
         return outer_driver
-    elif request_type == "automation" and outer_driver is None:
-        global_driver = firefox_browser()
-        driver = global_driver
-        return driver
-    pass
+    except WebDriverException:
+        outer_driver = firefox_browser()
+        outer_driver.get("https://web.whatsapp.com/")
+        return outer_driver
 
 
 def take_qr_code_screenshot():
     driver = handle_request("take_qr_code_screenshot")
+    try:
+        qr_code_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
+        # Get the location and size of the QR code element
+        location = qr_code_element.location
+        size = qr_code_element.size
+
+        # Take a screenshot of the QR code area
+        qr_code_screenshot = driver.get_screenshot_as_png()
+        qr_code_image = Image.open(BytesIO(qr_code_screenshot))
+        left = location['x']
+        top = location['y']
+        right = location['x'] + size['width']
+        bottom = location['y'] + size['height']
+        qr_code_image = qr_code_image.crop((left, top, right, bottom))
+
+        # Save the image to a file
+        qr_code_image_path = "static/whatsapp_qr_code.png"
+        qr_code_image.save(qr_code_image_path)
+        # Return the path to the image file
+        return qr_code_image_path
+    except InvalidSessionIdException:
+        # Handle the exception by reinitializing the driver
+        handle_request("take_qr_code_screenshot")
+        # Retry the operation or take alternative actions as needed
+        # For example, you might want to log in again or navigate to the desired page.
+        take_qr_code_screenshot()
+    except NoSuchElementException:
+        # Handle the exception by closing the driver and reopening it
+        driver.quit()
+        take_qr_code_screenshot()
+    except:
+        select_user = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")))
+        select_user.click()
+        time.sleep(1.2)
+        login_user = driver.find_element(By.CSS_SELECTOR, "div.xdod15v._ao3e.selectable-text.copyable-text")
+        return login_user.text
+
+
+def check_user():
+    driver = handle_request("check_user")
+    try:
+        select_user = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR,
+                                                                                     "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")))
+        select_user.click()
+        time.sleep(1.2)
+        login_user = driver.find_element(By.CSS_SELECTOR, "div.xdod15v._ao3e.selectable-text.copyable-text")
+        return login_user.text
+    except:
+        pass
+
+# to logout the user,  if user is not logged in then qrcode function is called
+def user_logout():
+    driver = handle_request("user_logout")
     driver.get("https://web.whatsapp.com/")
-    qr_code_element = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
-    # Get the location and size of the QR code element
-    location = qr_code_element.location
-    size = qr_code_element.size
-
-    # Take a screenshot of the QR code area
-    qr_code_screenshot = driver.get_screenshot_as_png()
-    qr_code_image = Image.open(BytesIO(qr_code_screenshot))
-    left = location['x']
-    top = location['y']
-    right = location['x'] + size['width']
-    bottom = location['y'] + size['height']
-    qr_code_image = qr_code_image.crop((left, top, right, bottom))
-
-    # Save the image to a file
-    qr_code_image_path = "static/whatsapp_qr_code.png"
-    qr_code_image.save(qr_code_image_path)
-    # Return the path to the image file
-    return qr_code_image_path
+    time.sleep(10.2)
+    try:
+        select_three_dots = driver.find_element(By.CSS_SELECTOR, 'div[title="Menu"]')
+        select_three_dots.click()
+        time.sleep(1.5)
+        logout_button = driver.find_element(By.CSS_SELECTOR, "div[aria-label='Log out']")
+        logout_button.click()
+        time.sleep(1.9)
+        user_logout_data = "User logout Successfully"
+        return user_logout_data
+    except:
+        qr_data = take_qr_code_screenshot()
+        return qr_data
 
 
+# This function is to run the job
 def run_automation(bulk_file, media, text):
     try:
         driver = handle_request("run_automation")
@@ -87,10 +167,10 @@ def run_automation(bulk_file, media, text):
             sys.exit()
     except Exception as e:
         error_msg = f"Error occurred during opening WhatsApp link: : {str(e)}"
-        print(error_msg)
         log_error(error_msg)
 
 
+# This function is used to send message and all other stuff
 def bulk_file_management(driver, bulk_file, media, text):
     global contact_persons
     global completed_task
@@ -126,9 +206,9 @@ def bulk_file_management(driver, bulk_file, media, text):
                         for letter in name:
                             search_input.send_keys(letter)
                             # Add a small delay if needed
-                            time.sleep(0.2)  # Adjust this value as needed
+                            time.sleep(0.1)  # Adjust this value as needed
                         # Wait for some time (optional, if needed)
-                        time.sleep(2.5)
+                        time.sleep(2.1)
 
                         try:
                             # Locate the element to check if contact is unavailable
@@ -142,16 +222,17 @@ def bulk_file_management(driver, bulk_file, media, text):
                                                                "//*[@id='app']/div/div[2]/div[2]/div[1]/span/div/span/div/div[1]/div[2]/button")
                                 back_btn.click()
                                 timestamp = datetime.now().strftime('%H:%M:%S %d-%m-%Y')
-                                unavlbl_contact_data = {'JobID': jobid,
-                                                        'contact': name,
-                                                        'status': "Unavailable on WhatsApp.",
-                                                        'timestamp': timestamp}
-                                current_contact_data_status([unavlbl_contact_data])
-                                uncompleted_contact([unavlbl_contact_data])
-                                uncompleted_task.append(unavlbl_contact_data)
+                                unavailable_contact_data = {'JobID': jobid,
+                                                            'contact': name,
+                                                            'status': "Unavailable on WhatsApp.",
+                                                            'timestamp': timestamp
+                                                            }
+                                current_contact_data_status([unavailable_contact_data])
+                                uncompleted_contact([unavailable_contact_data])
+                                uncompleted_task.append(unavailable_contact_data)
                         except NoSuchElementException:
                             search_input.send_keys(Keys.ENTER)
-                            time.sleep(2.5)
+                            time.sleep(2.1)
                             if text:
                                 select_text_box = WebDriverWait(driver, 5).until(EC.presence_of_element_located(
                                     (By.CSS_SELECTOR, "div[role='textbox'][title='Type a message']")))
@@ -169,7 +250,7 @@ def bulk_file_management(driver, bulk_file, media, text):
                                     text_data = text
                                 for msg in text_data:
                                     select_text_box.send_keys(msg)
-                                    time.sleep(0.2)
+                                    time.sleep(0.1)
 
                             if media:
                                 attach_btn = driver.find_element(By.CSS_SELECTOR, "div.x11xpdln.x1d8287x.x1h4ghdb")
@@ -187,11 +268,12 @@ def bulk_file_management(driver, bulk_file, media, text):
 
                                 # select_media.click()
 
-                            time.sleep(3.5)
+                            time.sleep(2.1)
 
                             if text and media or media:
-                            # To send message
-                                send_button = driver.find_element(By.CSS_SELECTOR, "#app > div > div.two._aigs > div._aigu > div._aigv._aigz > span > div > span > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x1hc1fzr.x6ikm8r.x10wlt62 > div > div._ajwz > div._ajx2 > div > div > span")
+                                # To send message
+                                send_button = driver.find_element(By.CSS_SELECTOR,
+                                                                  "#app > div > div.two._aigs > div._aigu > div._aigv._aigz > span > div > span > div > div > div.x1n2onr6.xyw6214.x78zum5.x1r8uery.x1iyjqo2.xdt5ytf.x1hc1fzr.x6ikm8r.x10wlt62 > div > div._ajwz > div._ajx2 > div > div > span")
                                 # Click the send button
                                 send_button.click()
 
@@ -213,7 +295,6 @@ def bulk_file_management(driver, bulk_file, media, text):
                             pass
                     except Exception as e:
                         error_msg = f"Error occurred during processing contact : "
-                        print(error_msg, e)
                         log_error(error_msg)
                         continue
 
@@ -221,15 +302,14 @@ def bulk_file_management(driver, bulk_file, media, text):
                     sys.exit()
         except Exception as e:
             error_msg = f"Error occurred during opening bulk file contact: {str(e)}"
-            print(error_msg)
             log_error(error_msg)
         finally:
             os.remove(bulk_file)
             if media:
                 os.remove(media)
-            driver.close()
 
 
+# this function is used to extract contact name and number from uploaded excel
 def extracting_contacts(bulk_file):
     all_sheets_data = pd.read_excel(bulk_file, sheet_name=None)
     contacts_list = []
@@ -240,6 +320,7 @@ def extracting_contacts(bulk_file):
     return contacts_list
 
 
+# To manage the job times
 def job_time():
     current_hour = datetime.now().hour
     if current_hour < 5 or current_hour >= 22:
@@ -254,12 +335,14 @@ def log_error(error_msg):
         f.write(f'{timestamp}: {error_msg}\n')
 
 
+# To kill Automation
 def kill_automation():
     global terminate_flag
     terminate_flag = True
     return terminate_flag
 
 
+# TO generate job ID
 def generate_job_id():
     alphabet = string.ascii_uppercase
     current_date = datetime.now().strftime('%d-%m-%Y')  # Get current date
@@ -268,6 +351,7 @@ def generate_job_id():
     return job_id
 
 
+# to generate pdf from the output of html table
 def generate_pdf(df):
     fig, ax = plt.subplots(figsize=(12, 8))
     ax.axis('tight')
@@ -284,6 +368,7 @@ def generate_pdf(df):
     return pdf_output.getvalue()
 
 
+# This function is triggered when user click for vcf conversion
 def create_vcf(input_excel):
     try:
         # Read Excel file into DataFrame
@@ -327,4 +412,4 @@ def create_vcf(input_excel):
         # Return the list of generated vCard file paths
         return vcf_paths
     except Exception as e:
-        print("Error occur during generating .VCF", e)
+        pass
