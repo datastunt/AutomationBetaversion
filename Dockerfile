@@ -27,12 +27,15 @@ RUN apt-get update \
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Firefox
+# Install Firefox 115 ESR
 RUN apt-get update \
- && apt-get install -y firefox-esr \
+ && apt-get install -y wget bzip2 \
+ && wget -O firefox.tar.bz2 "https://ftp.mozilla.org/pub/firefox/releases/115.0esr/linux-x86_64/en-US/firefox-115.0esr.tar.bz2" \
+ && tar xvjf firefox.tar.bz2 -C /opt/ \
+ && ln -s /opt/firefox/firefox /usr/bin/firefox \
+ && rm firefox.tar.bz2 \
  && rm -rf /var/lib/apt/lists/*
 
-# Download and install geckodriver
 # Download and install geckodriver
 ARG GECKODRIVER_VERSION=0.34.0
 RUN apt-get update && apt-get install -y wget unzip && \
