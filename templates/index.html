@@ -75,8 +75,10 @@
                   <div class="form-group">
 
          <button type="button" class="btn btn-primary" id="loginButton" onclick="showQRCode()">Login</button>
-         <a href="/logout"  class="btn btn-primary" id="logoutButton" onclick="LogoutUser()" style="float:right; display:none;">Logout</a>
-<br>
+         <a href="/logout"  class="btn btn-primary" id="logoutButton" style="float:right; display:none;">Logout</a>
+                    </div>
+                             <div class="form-group">
+
          <button type="submit" class="btn btn-info" id="StartJob" style="display:none; width:100%; margin:auto;">Start Job</button>
                                        </div>
 
@@ -107,66 +109,123 @@
              label.innerText = input.files[0].name;
          }
 
-         function showQRCode()
-         {
-             document.getElementById('loginButton').style.backgroundColor = 'green';
-
-             fetch('/qrcode') // Call the API to get the QR code image
-                 .then(response => {
-                     if (!response.ok) {
-                         throw new Error('Network response was not ok');
-                     }
-                     return response.json();
-                 })
-                 .then(data => {
-                     console.log('QR code image received:', data.qrcode);
-                     var qrCodeImg = document.getElementById('qrCodeImg');
-                     if (data.qrcode != "static/whatsapp_qr_code.png")
-                     {
-                     var user = document.getElementById('login-user');
-                     console.log(user.innerText);
-                     user.innerText = data.qrcode;
-                     document.getElementById('qrcodeImagePopup').style.display = 'block'; // Show the QR code popup
-                     user.style.display = 'block';
-                     document.getElementById("login-data").style.display = 'block';
-                     document.getElementById("logoutButton").style.display = 'block';
-                     document.getElementById("StartJob").style.display = 'block';
-                     qrCodeImg.style.display = 'none';
-
-                     }
-                     else
-                     {
-                     qrCodeImg.src = data.qrcode; // Update the QR code image source
-                     document.getElementById('qrcodeImagePopup').style.display = 'block'; // Show the QR code popup
-                     document.getElementById("login-user").style.display = 'none';
-                     document.getElementById("login-data").style.display = 'none';
-
-                     }
-                     // Hide the QR code popup after 15 seconds
-                     setTimeout(function() {
-                         hideQRCode();
-                     }, 15000); // 15 seconds in milliseconds
-
-                     // Add event listener to hide QR code when clicked anywhere
-                     document.body.addEventListener('click', hideQRCodeOnClick);
-                 })
-                 .catch(error => {
-                     console.error('Error fetching QR code:', error);
-                 });
-
-         }
 
 
 
 
-         function hideQRCodeOnClick() {
-             hideQRCode();
-             document.body.removeEventListener('click', hideQRCodeOnClick);
-         }
 
-         function hideQRCode() {
-             document.getElementById('qrcodeImagePopup').style.display = 'none';
-         }
+
+
+
+
+
+function showQRCode() {
+    document.getElementById('loginButton').style.backgroundColor = 'green';
+
+    fetch('/qrcode')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('QR code image received:', data.qrcode);
+            var qrCodeImg = document.getElementById('qrCodeImg');
+            if (data.qrcode != "static/whatsapp_qr_code.png") {
+                var user = document.getElementById('login-user');
+                console.log(user.innerText);
+                user.innerText = data.qrcode;
+                document.getElementById('qrcodeImagePopup').style.display = 'block';
+                user.style.display = 'block';
+                document.getElementById("login-data").style.display = 'block';
+                document.getElementById("logoutButton").style.display = 'block';
+                document.getElementById("StartJob").style.display = 'block';
+                qrCodeImg.style.display = 'none';
+            } else {
+                qrCodeImg.src = data.qrcode;
+                document.getElementById('qrcodeImagePopup').style.display = 'block';
+                document.getElementById("login-user").style.display = 'none';
+                document.getElementById("login-data").style.display = 'none';
+            }
+
+            // Hide the QR code popup after 15 seconds
+            setTimeout(function() {
+                hideQRCode();
+            }, 15000); // 15 seconds in milliseconds
+
+            // Add event listener to hide QR code when clicked anywhere
+            document.body.addEventListener('click', hideQRCodeOnClick);
+
+            // Run checkUser() after processing QR code data
+            return checkUser();
+        })
+        .then(existUser => {
+            if (existUser) {
+                var user = document.getElementById('login-user');
+                user.innerText = existUser.user;
+                document.getElementById('qrcodeImagePopup').style.display = 'block';
+                user.style.display = 'block';
+                document.getElementById("login-data").style.display = 'block';
+                document.getElementById("logoutButton").style.display = 'block';
+                document.getElementById("StartJob").style.display = 'block';
+                var qrCodeImg = document.getElementById('qrCodeImg');
+                qrCodeImg.style.display = 'none';
+            } else {
+                document.getElementById("login-user").style.display = 'none';
+                document.getElementById("login-data").style.display = 'none';
+                document.getElementById("logoutButton").style.display = 'none';
+                document.getElementById("StartJob").style.display = 'none';
+                document.getElementById('qrcodeImagePopup').style.display = 'none';
+                document.getElementById('qrCodeImg').style.display = 'none';
+
+                // Hide the username popup after 15 seconds
+                setTimeout(function() {
+                    hideUserNameOnClick();
+                }, 15000); // 15 seconds in milliseconds
+
+                // Add event listener to hide username when clicked anywhere
+                document.body.addEventListener('click', hideUserNameOnClick);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+function checkUser() {
+    return fetch('/checker')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('Error checking user:', error);
+        });
+}
+
+function hideQRCodeOnClick() {
+    hideQRCode();
+    document.body.removeEventListener('click', hideQRCodeOnClick);
+}
+
+function hideQRCode() {
+    document.getElementById('qrcodeImagePopup').style.display = 'none';
+}
+
+function hideUserNameOnClick() {
+    hideUserName();
+    document.body.removeEventListener('click', hideUserNameOnClick);
+}
+
+function hideUserName() {
+    var userNamePopup = document.getElementById('login-user');
+    userNamePopup.style.display = 'none';
+}
+
+
 
       </script>
    </body>

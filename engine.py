@@ -120,16 +120,15 @@ def take_qr_code_screenshot():
 
 def check_user():
     driver = handle_request("check_user")
-    time.sleep(2.9)
     try:
-        select_user = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR,
-                                                                                     "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")))
+        time.sleep(30.5)
+        select_user = driver.find_element(By.CSS_SELECTOR, "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")
         select_user.click()
         time.sleep(1.2)
         login_user = driver.find_element(By.CSS_SELECTOR, "div.xdod15v._ao3e.selectable-text.copyable-text")
         return login_user.text
     except:
-        pass
+        return None
 
 # to logout the user,  if user is not logged in then qrcode function is called
 def user_logout():
@@ -143,6 +142,8 @@ def user_logout():
         logout_button = driver.find_element(By.CSS_SELECTOR, "div[aria-label='Log out']")
         logout_button.click()
         time.sleep(1.9)
+        final_logout = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/span[2]/div/div/div/div/div/div/div[3]/div/button[2]/div/div")
+        final_logout.click()
         user_logout_data = "User logout Successfully"
         return user_logout_data
     except:
