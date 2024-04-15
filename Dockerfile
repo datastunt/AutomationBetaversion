@@ -1,9 +1,17 @@
-# Use a base image with Python 3.12
-FROM python:3.11
+# Use the selenium/standalone-firefox image as the base image
+FROM selenium/standalone-firefox:latest
 
 # Set the working directory inside the container
 WORKDIR /app
 
+# Copy the geckodriver executable into the container
+#COPY geckodriver_path/geckodriver /usr/local/bin/
+
+# Set executable permissions for geckodriver
+#RUN sudo chmod +x /usr/local/bin/geckodriver
+
+# Install pip and other dependencies
+RUN sudo apt-get update && sudo apt-get install -y python3-pip
 
 
 # Copy the Python code, templates, session file, and other files into the container
@@ -16,41 +24,7 @@ COPY static /app/static
 COPY error_log.txt /app/error_log.txt
 COPY requirements.txt /app/requirements.txt
 
-# Set environment variable to prevent debconf from prompting for user input
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install apt-utils to avoid debconf warning
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
- && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Firefox 115 ESR
-RUN apt-get update \
- && apt-get install -y wget bzip2 \
- && wget -O firefox.tar.bz2 "https://ftp.mozilla.org/pub/firefox/releases/115.0esr/linux-x86_64/en-US/firefox-115.0esr.tar.bz2" \
- && tar xvjf firefox.tar.bz2 -C /opt/ \
- && ln -s /opt/firefox/firefox /usr/bin/firefox \
- && rm firefox.tar.bz2 \
- && rm -rf /var/lib/apt/lists/*
-
-# Download and install geckodriver
-ARG GECKODRIVER_VERSION=0.34.0
-RUN apt-get update && apt-get install -y wget unzip && \
-    wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
-    tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
-    mv geckodriver /usr/local/bin/ && \
-    rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set environment variable to enable headless mode for Firefox
-#ENV MOZ_HEADLESS=1
-
-# Expose port 8080
-EXPOSE 8080
 
 # Set the entry point for the container
 CMD ["python3", "main.py"]
