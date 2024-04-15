@@ -10,4 +10,3 @@ def firefox_browser():
     options.add_argument("--headless")
     executor = Service(os.environ.get("geckodriver.exe"))
     return webdriver.Firefox(executable_path=executor, options=options)
-
