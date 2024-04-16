@@ -1,11 +1,45 @@
 import shutil
 import zipfile
+import subprocess
 from engine import *
-from webdriver_setup import *
+import os
 from datastorage import trace_current_status
-from flask import Flask, render_template, request, Response, send_file, jsonify
+from flask import Flask, render_template, request, Response, send_file, jsonify, redirect, url_for, send_from_directory, \
+    abort
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = 'static/uploads'
+COMPRESSED_FOLDER = 'static/compressed'
+ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['COMPRESSED_FOLDER'] = COMPRESSED_FOLDER
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def compress_video(input_path, output_path):
+    command = f'ffmpeg -i {input_path} -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -b:v 1M {output_path}'
+    subprocess.run(command, shell=True)
+
+
+def upload_file(file):
+    if file and allowed_file(file.filename):
+        filename = file.filename
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        if os.path.getsize(filepath) > 64 * 1024 * 1024:  # Check if file size is greater than 64MB
+            compressed_filename = f'compressed_{filename}'
+            compressed_filepath = os.path.join(app.config['COMPRESSED_FOLDER'], compressed_filename)
+            compress_video(filepath, compressed_filepath)
+            return compressed_filename
+        else:
+            return filename
+    else:
+        return 'Invalid file format!'
 
 
 @app.route("/")
@@ -15,19 +49,20 @@ def home():
 
 @app.route("/automation", methods=['POST'])
 def automation():
-    media = request.files.get('media_content')
+    # media = request.files.get('media_content')
+    video = request.files.get('video_content')
+    video = upload_file(video)
     text = request.form.get('message')
     bulk_file = request.files.get('bulkFile')
-    run_automation(bulk_file, media, text)
+    run_automation(bulk_file, video, text)
     tasks = {"completed_task": completed_task, "uncompleted_task": uncompleted_task, "contact_length": contact_persons}
     print("contact_persons", contact_persons)
-    print(uncompleted_task)
+    print("uncompleted_task", uncompleted_task)
     return render_template('logs_table.html', result=tasks)
 
 
 @app.route("/qrcode", methods=['GET'])
 def get_qrcode_scanner():
-    # Generate and return the QR code scanner
     qrcode = take_qr_code_screenshot()
     return jsonify({'qrcode': qrcode})
 

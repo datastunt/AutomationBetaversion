@@ -12,13 +12,14 @@ def uncompleted_contact(data):
 
         # Bulk insert data from logs dictionary into MySQL table
         for entry in data:
-            job_id = entry['JobID']
-            contact = entry['contact']
-            reason = entry['reason']
-            timestamp = entry['timestamp']
+            job_id = entry.get('jobid')  # Use .get() method to safely retrieve values
+            contact_name = entry.get('contact_name')  # Use .get() method to safely retrieve values
+            contact_number = entry.get('contact_number')  # Use .get() method to safely retrieve values
+            status = entry.get('status')  # Use .get() method to safely retrieve values
+            timestamp = entry.get('timestamp')  # Use .get() method to safely retrieve values
             # Example SQL query to insert data into a table named 'automation_progress'
-            sql = "INSERT INTO automation_progress (JobID, Contact, Reason, Timestamp) VALUES (%s, %s, %s, %s)"
-            cursor.execute(sql, (job_id, contact, reason, timestamp))
+            sql = "INSERT INTO Successfull_jobs (jobid, contact_name, contact_number, status, timestamp) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(sql, (job_id, contact_name, contact_number, timestamp, status))
 
         # Commit changes to the database
         connection.commit()
@@ -44,15 +45,16 @@ def completed_contact(data):
         # Iterate over each dictionary in the data list
         for entry in data:
             # Extract values from the dictionary
-            job_id = entry['JobID']
-            contact = entry['contact']
-            status = entry['status']
-            timestamp = entry['timestamp']
+            job_id = entry.get('jobid')  # Use .get() method to safely retrieve values
+            contact_name = entry.get('contact_name')  # Use .get() method to safely retrieve values
+            contact_number = entry.get('contact_number')  # Use .get() method to safely retrieve values
+            status = entry.get('status')  # Use .get() method to safely retrieve values
+            timestamp = entry.get('timestamp')  # Use .get() method to safely retrieve values
 
             # Example SQL query to insert data into a table named 'automation_status'
-            sql = "INSERT INTO automation_status (JobID, contact_number, Timestamp, Status) VALUES (%s, %s, %s, %s)"
+            sql = "INSERT INTO Successfull_jobs (jobid, contact_name, contact_number, status, timestamp) VALUES (%s, %s, %s, %s, %s)"
             # Execute the SQL query with values as a tuple
-            cursor.execute(sql, (job_id, contact, timestamp, status))
+            cursor.execute(sql, (job_id, contact_name, contact_number, timestamp, status))
         # Commit changes to the database
         connection.commit()
 
@@ -79,15 +81,16 @@ def current_contact_data_status(data):
             # Iterate over each dictionary in the data list
             for entry in data:
                 # Extract values from the dictionary
-                job_id = entry.get('JobID')  # Use .get() method to safely retrieve values
-                contact = entry.get('contact')  # Use .get() method to safely retrieve values
+                job_id = entry.get('jobid')  # Use .get() method to safely retrieve values
+                contact_name = entry.get('contact_name')  # Use .get() method to safely retrieve values
+                contact_number = entry.get('contact_number')  # Use .get() method to safely retrieve values
                 status = entry.get('status')  # Use .get() method to safely retrieve values
                 timestamp = entry.get('timestamp')  # Use .get() method to safely retrieve values
 
                 # Example SQL query to insert data into a table named 'message_logs'
-                sql = "INSERT INTO message_logs (JobID, Contact_name, Timestamp, status) VALUES (%s, %s, %s, %s)"
+                sql = "INSERT INTO All_jobs (jobid, contact_name, contact_number, status, timestamp) VALUES (%s, %s, %s, %s, %s)"
                 # Execute the SQL query with values as a tuple
-                cursor.execute(sql, (job_id, contact, timestamp, status))
+                cursor.execute(sql, (job_id, contact_name, contact_number, timestamp, status))
             # Commit changes to the database
             connection.commit()
 
@@ -113,7 +116,7 @@ def trace_current_status():
 
     try:
         # Query to fetch the last added data based on timestamp
-        sql = "SELECT * FROM automation_status ORDER BY Timestamp DESC LIMIT 1"
+        sql = "SELECT * FROM All_jobs ORDER BY Timestamp DESC LIMIT 1"
 
         # Execute the query
         cursor.execute(sql)
@@ -130,36 +133,3 @@ def trace_current_status():
         # Close cursor and connection
         cursor.close()
         connection.close()
-
-print()
-#
-# def track_msg():
-#     connection = connector.connect(host='datastuntstaging.co.in',
-#                                    user='u385679644_wpautomation',
-#                                    password='z>P4I+3L/Q2a',
-#                                    database='u385679644_wpautomation')
-#     cursor = connection.cursor()
-#     try:
-#         # Execute SELECT query to fetch data from message_logs table
-#         sql = "SELECT JobID, Contact_name, Timestamp, status FROM message_logs"
-#         cursor.execute(sql)
-#
-#         # Fetch all rows from the result set
-#         message_logs_data = cursor.fetchall()
-#
-#         # Convert fetched data into a pandas DataFrame
-#         df = pd.DataFrame(message_logs_data, columns=['JobID', 'Contact_name', 'Timestamp', 'status'])
-#
-#         # Write DataFrame to a .csv file
-#         df.to_csv('message_logs.csv', index=False)
-#
-#     except connector.Error as err:
-#         print("An error occurred while fetching data from the database:", err)
-#
-#     finally:
-#         # Close the cursor and connection
-#         cursor.close()
-#         connection.close()
-
-
-

@@ -111,7 +111,8 @@ def take_qr_code_screenshot():
         driver.quit()
         take_qr_code_screenshot()
     except:
-        select_user = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")))
+        select_user = driver.find_element(By.CSS_SELECTOR,
+                                          "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")
         select_user.click()
         time.sleep(1.2)
         login_user = driver.find_element(By.CSS_SELECTOR, "div.xdod15v._ao3e.selectable-text.copyable-text")
@@ -122,13 +123,15 @@ def check_user():
     driver = handle_request("check_user")
     try:
         time.sleep(30.5)
-        select_user = driver.find_element(By.CSS_SELECTOR, "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")
+        select_user = driver.find_element(By.CSS_SELECTOR,
+                                          "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")
         select_user.click()
         time.sleep(1.2)
         login_user = driver.find_element(By.CSS_SELECTOR, "div.xdod15v._ao3e.selectable-text.copyable-text")
         return login_user.text
     except:
         return None
+
 
 # to logout the user,  if user is not logged in then qrcode function is called
 def user_logout():
@@ -142,7 +145,8 @@ def user_logout():
         logout_button = driver.find_element(By.CSS_SELECTOR, "div[aria-label='Log out']")
         logout_button.click()
         time.sleep(1.9)
-        final_logout = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/span[2]/div/div/div/div/div/div/div[3]/div/button[2]/div/div")
+        final_logout = driver.find_element(By.XPATH,
+                                           "/html/body/div[1]/div/div/span[2]/div/div/div/div/div/div/div[3]/div/button[2]/div/div")
         final_logout.click()
         user_logout_data = "User logout Successfully"
         return user_logout_data
@@ -159,10 +163,7 @@ def run_automation(bulk_file, media, text):
         time.sleep(20.5)
 
         if not terminate_flag:
-            if media:
-                media.save(media.filename)
-                media = media.filename
-            else:
+            if media is None:
                 media = None
             bulk_file_management(driver, bulk_file, media, text)
         else:
@@ -174,7 +175,6 @@ def run_automation(bulk_file, media, text):
 
 # This function is used to send message and all other stuff
 def bulk_file_management(driver, bulk_file, media, text):
-    global contact_persons
     global completed_task
     global uncompleted_task
     if bulk_file and not terminate_flag:
@@ -183,7 +183,6 @@ def bulk_file_management(driver, bulk_file, media, text):
             bulk_file.save(bulk_file.filename)
             bulk_file = bulk_file.filename
             contacts_list = extracting_contacts(bulk_file)
-            contact_persons = len(contacts_list)
             for number, name in contacts_list:
                 name = str(name)
                 name = name.rstrip().lstrip()
@@ -224,9 +223,10 @@ def bulk_file_management(driver, bulk_file, media, text):
                                                                "//*[@id='app']/div/div[2]/div[2]/div[1]/span/div/span/div/div[1]/div[2]/button")
                                 back_btn.click()
                                 timestamp = datetime.now().strftime('%H:%M:%S %d-%m-%Y')
-                                unavailable_contact_data = {'JobID': jobid,
-                                                            'contact': name,
-                                                            'status': "Unavailable on WhatsApp.",
+                                unavailable_contact_data = {'jobid': jobid,
+                                                            'contact_name': name,
+                                                            'contact_number': number,
+                                                            'status': "Message sent successfully.",
                                                             'timestamp': timestamp
                                                             }
                                 current_contact_data_status([unavailable_contact_data])
@@ -257,20 +257,18 @@ def bulk_file_management(driver, bulk_file, media, text):
                             if media:
                                 attach_btn = driver.find_element(By.CSS_SELECTOR, "div.x11xpdln.x1d8287x.x1h4ghdb")
                                 driver.execute_script("arguments[0].click();", attach_btn)
-                                time.sleep(2.5)
-
-                                # Wait for the parent li element to be present in the DOM
-                                # select_media = driver.find_element(By.CSS_SELECTOR, "div.x1c4vz4f.xs83m0k.xdl72j9.x1g77sc7.x78zum5.xozqiw3.x1oa3qoh.x12fk4p8.xeuugli.x2lwn1j.x1nhvcw1.x1q0g3np.x6s0dn4.x1ypdohk.x1vqgdyp.x1i64zmx.x1gja9t")
-                                # Click the input element to trigger the file selection dialog
+                                time.sleep(1.5)
 
                                 select_media_input = driver.find_element(By.CSS_SELECTOR,
                                                                          "input[type='file'][accept='image/*,video/mp4,video/3gpp,video/quicktime']")
-                                media_absolute_path = os.path.abspath(media)
-                                select_media_input.send_keys(media_absolute_path)
+
+                                file_name = media
+                                file_absolute_path = os.path.abspath(os.path.join('static', 'uploads', file_name))
+                                select_media_input.send_keys(file_absolute_path)
 
                                 # select_media.click()
 
-                            time.sleep(2.1)
+                            time.sleep(2.9)
 
                             if text and media or media:
                                 # To send message
@@ -285,8 +283,9 @@ def bulk_file_management(driver, bulk_file, media, text):
                                 send_button.click()
 
                             timestamp = datetime.now().strftime('%H:%M:%S %d-%m-%Y')
-                            avlbl_contact_data = {'JobID': jobid,
-                                                  'contact': name,
+                            avlbl_contact_data = {'jobid': jobid,
+                                                  'contact_name': name,
+                                                  'contact_number': number,
                                                   'status': "Message sent successfully.",
                                                   'timestamp': timestamp
                                                   }
@@ -308,18 +307,32 @@ def bulk_file_management(driver, bulk_file, media, text):
         finally:
             os.remove(bulk_file)
             if media:
-                os.remove(media)
+                file_absolute_path = os.path.abspath(os.path.join('static', 'uploads', media))
+                os.remove(file_absolute_path)
 
 
 # this function is used to extract contact name and number from uploaded excel
 def extracting_contacts(bulk_file):
-    all_sheets_data = pd.read_excel(bulk_file, sheet_name=None)
-    contacts_list = []
-    for sheet_name, sheet_data in all_sheets_data.items():
-        if sheet_data is not None and not sheet_data.empty:
-            for index, row in sheet_data.iterrows():
-                contacts_list.append((row['Number'], row['Name']))
-    return contacts_list
+    try:
+        global contact_persons
+        # Read the Excel file
+        all_sheets_data = pd.read_excel(bulk_file, sheet_name=None)
+        contacts_list = []
+
+        # Iterate through all sheets and extract contacts
+        for sheet_name, sheet_data in all_sheets_data.items():
+            if sheet_data is not None and not sheet_data.empty:
+                for index, row in sheet_data.iterrows():
+                    # Extract the contact information (assuming 'Number' and 'Name' are column names)
+                    contacts_list.append((row['Number'], row['Name']))
+
+        contact_persons = len(contacts_list)
+        return contacts_list
+    except Exception as e:
+        # Handle any exceptions
+        error_msg = f"Error occurred during contact extraction: {str(e)}"
+        log_error(error_msg)
+        return []
 
 
 # To manage the job times
@@ -415,3 +428,6 @@ def create_vcf(input_excel):
         return vcf_paths
     except Exception as e:
         pass
+
+
+
