@@ -56,8 +56,6 @@ def automation():
     bulk_file = request.files.get('bulkFile')
     run_automation(bulk_file, video, text)
     tasks = {"completed_task": completed_task, "uncompleted_task": uncompleted_task, "contact_length": contact_persons}
-    print("contact_persons", contact_persons)
-    print("uncompleted_task", uncompleted_task)
     return render_template('logs_table.html', result=tasks)
 
 
@@ -144,7 +142,8 @@ def download_vcf():
         else:
             return "Error generating vCard files", 500
     except Exception as e:
-        print("Error occurred during converting in vcf", e)
+        # print("Error occurred during converting in vcf", e)
+        pass
 
 
 if __name__ == "__main__":

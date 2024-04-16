@@ -59,7 +59,7 @@ def completed_contact(data):
         connection.commit()
 
     except connector.Error as err:
-        print("An error occurred during save in database:", err)
+        # print("An error occurred during save in database:", err)
         connection.rollback()
 
     finally:
@@ -95,7 +95,7 @@ def current_contact_data_status(data):
             connection.commit()
 
         except connector.Error as err:
-            print("An error occurred during save in database:", err)
+            # print("An error occurred during save in database:", err)
             connection.rollback()
 
         finally:
@@ -127,7 +127,8 @@ def trace_current_status():
         return last_added_data
 
     except connector.Error as err:
-        print("An error occurred while fetching last added contact:", err)
+        # print("An error occurred while fetching last added contact:", err)
+        pass
 
     finally:
         # Close cursor and connection
