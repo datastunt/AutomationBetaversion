@@ -4,8 +4,7 @@ import subprocess
 from engine import *
 import os
 from datastorage import trace_current_status
-from flask import Flask, render_template, request, Response, send_file, jsonify, redirect, url_for, send_from_directory, \
-    abort
+from flask import Flask, render_template, request, Response, send_file, jsonify
 
 app = Flask(__name__)
 
