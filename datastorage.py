@@ -1,3 +1,6 @@
+import time
+from datetime import datetime
+
 from mysql import connector
 
 
@@ -134,3 +137,29 @@ def trace_current_status():
         # Close cursor and connection
         cursor.close()
         connection.close()
+
+
+
+import datetime
+import time
+
+
+# To manage the job times
+def job_time():
+    current_hour = datetime.datetime.now().strftime('%H:%M:%S')
+    # Checking if current time is between "10:00:00" and "23:59:59" or "00:00:00" and "05:00:00"
+    if "22:00:00" <= current_hour <= "23:59:59" or "00:00:00" <= current_hour <= "05:00:00":
+        print("Sleeping until 05:00:00")
+        # Calculate time difference until 05:00:00
+        target_time = datetime.datetime.strptime("05:00:00", "%H:%M:%S")
+        current_time = datetime.datetime.strptime(current_hour, "%H:%M:%S")
+        time_difference = (target_time - current_time).total_seconds()
+        time.sleep(time_difference)
+
+    else:
+        pass
+
+
+
+
+

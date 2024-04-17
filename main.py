@@ -20,6 +20,7 @@ def automation():
     video = upload_file(video)
     text = request.form.get('message')
     bulk_file = request.files.get('bulkFile')
+    session.clear()
     run_automation(bulk_file, video, text, session)
     completed_task = session.get('completed_task', [])
     uncompleted_task = session.get('uncompleted_task', [])

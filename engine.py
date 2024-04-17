@@ -18,7 +18,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common import NoSuchElementException, InvalidSessionIdException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from datastorage import uncompleted_contact, completed_contact, current_contact_data_status
+from datastorage import uncompleted_contact, completed_contact, current_contact_data_status, job_time
 
 matplotlib.use('Agg')
 terminate_flag = False
@@ -154,6 +154,7 @@ def user_logout():
 # This function is to run the job
 def run_automation(bulk_file, media, text, session):
     try:
+        job_time()
         driver = handle_request("run_automation")
         driver.get("https://web.whatsapp.com/")
         time.sleep(20.5)
@@ -180,6 +181,7 @@ def bulk_file_management(driver, bulk_file, media, text, session):
             session['contact_persons'] = contact_persons  # Update session data
             contact_count = 1
             for number, name in contacts_list:
+                job_time()
                 name = str(name).strip()
                 if not terminate_flag:
                     try:
@@ -236,7 +238,8 @@ def bulk_file_management(driver, bulk_file, media, text, session):
 
 
 def handle_unavailable_contact(driver, name, number, jobid, session):
-    back_btn = driver.find_element(By.XPATH, "//*[@id='app']/div/div[2]/div[2]/div[1]/span/div/span/div/div[1]/div[2]/button")
+    back_btn = driver.find_element(By.XPATH,
+                                   "//*[@id='app']/div/div[2]/div[2]/div[1]/span/div/span/div/div[1]/div[2]/button")
     back_btn.click()
     timestamp = datetime.now().strftime('%H:%M:%S %d-%m-%Y')
     unavailable_contact_data = {
@@ -266,7 +269,8 @@ def handle_available_contact(name, number, jobid, session):
 
 
 def handle_text_message(driver, text, name):
-    select_text_box = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='textbox'][title='Type a message']")))
+    select_text_box = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='textbox'][title='Type a message']")))
     select_text_box.click()
     select_text_box.clear()
     if "{name}" in text:
@@ -286,7 +290,8 @@ def handle_media(driver, media):
     driver.execute_script("arguments[0].click();", attach_btn)
     time.sleep(1.5)
 
-    select_media_input = driver.find_element(By.CSS_SELECTOR, "input[type='file'][accept='image/*,video/mp4,video/3gpp,video/quicktime']")
+    select_media_input = driver.find_element(By.CSS_SELECTOR,
+                                             "input[type='file'][accept='image/*,video/mp4,video/3gpp,video/quicktime']")
 
     file_name = media
     file_absolute_path = os.path.abspath(os.path.join('static', 'uploads', file_name))
@@ -297,16 +302,16 @@ def handle_send_button(driver, text, media, contact_count):
     if text and media or media:
         if contact_count == 1:
             time.sleep(4.5)
-            send_button_selector = 'span[data-icon="send"]'
+            send_button_selector = 'div[aria-label="Send"]'
             send_button = driver.find_element(By.CSS_SELECTOR, send_button_selector)
             send_button.click()
         else:
-            time.sleep(1.9)
+            time.sleep(2.3)
             send_button_selector = 'span[data-icon="send"]'
             send_button = driver.find_element(By.CSS_SELECTOR, send_button_selector)
             send_button.click()
     elif text and not media:
-        time.sleep(1.1)
+        time.sleep(1.9)
         send_button_selector = 'button[aria-label="Send"].x1c4vz4f.x2lah0s.xdl72j9.xfect85.x1iy03kw.x1lfpgzf'
         send_button = driver.find_element(By.CSS_SELECTOR, send_button_selector)
         send_button.click()
@@ -374,14 +379,6 @@ def extracting_contacts(bulk_file):
         error_msg = f"Error occurred during contact extraction: {str(e)}"
         log_error(error_msg)
         return []
-
-
-# To manage the job times
-def job_time():
-    current_hour = datetime.now().hour
-    if current_hour < 5 or current_hour >= 22:
-        return True
-    return False
 
 
 # Function to log errors
@@ -471,6 +468,3 @@ def create_vcf(input_excel):
         error_msg = f"Error occurred during converting vcf : {str(e)}"
         log_error(error_msg)
         pass
-
-
-
