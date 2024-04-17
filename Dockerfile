@@ -4,8 +4,6 @@ FROM python:3.11
 # Set the working directory inside the container
 WORKDIR /app
 
-
-
 # Copy the Python code, templates, session file, and other files into the container
 COPY main.py /app/
 COPY engine.py /app/
@@ -48,6 +46,7 @@ RUN apt-get update && apt-get install -y wget unzip && \
     wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
     tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
     mv geckodriver /usr/local/bin/ && \
+    chmod +x /usr/local/bin/geckodriver && \    # Set executable permissions
     rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
