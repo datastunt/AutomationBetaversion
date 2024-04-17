@@ -74,7 +74,7 @@ def handle_request(request_type):
 
 
 def take_qr_code_screenshot():
-    driver = handle_request("take_qr_code_screenshot")
+    driver = handle_request("take_qr_code_screenshot")    
     try:
         time.sleep(10.5)
         qr_code_element = WebDriverWait(driver, 10).until(
