@@ -2,10 +2,10 @@ import shutil
 import zipfile
 from engine import *
 from datastorage import trace_current_status
-from flask import Flask, render_template, request, Response, send_file, jsonify
+from flask import Flask, render_template, request, Response, send_file, jsonify, session
 
 app = Flask(__name__)
-# app.secret_key = '@wpAutomation321'
+app.secret_key = '@wpAutomation321'
 
 
 @app.route("/")
@@ -20,7 +20,7 @@ def automation():
     video = upload_file(video)
     text = request.form.get('message')
     bulk_file = request.files.get('bulkFile')
-    session = {}
+    session.clear()
     run_automation(bulk_file, video, text, session)
     completed_task = session.get('completed_task', [])
     uncompleted_task = session.get('uncompleted_task', [])
@@ -39,11 +39,11 @@ def get_qrcode_scanner():
     return jsonify({'qrcode': qrcode})
 
 
-# @app.route("/checker", methods=['GET'])
-# def checker():
-#     check_user(session)
-#     user = session.get('username', [])
-#     return jsonify({"user": user})
+@app.route("/checker", methods=['GET'])
+def checker():
+    check_user(session)
+    user = session.get('username', [])
+    return jsonify({"user": user})
 
 
 @app.route("/logout", methods=['GET'])
@@ -64,34 +64,34 @@ def kill_automation_route():
     return render_template('index.html')
 
 
-# @app.route('/download_pdf')
-# def download_pdf():
-#     # completed_task = session.get('completed_task', [])
-#     # uncompleted_task = session.get('uncompleted_task', [])
-#     # data = {'completed_job': completed_task, 'uncompleted_job': uncompleted_task, "contacts": contact_persons}
-#     # Combine completed and uncompleted job data
-#     # main_data = {'Done task': completed_task, 'Undone task': uncompleted_task}
-#     # Efficient DataFrame creation
-#     rows = []
-#     for key, values in main_data.items():
-#         for item in values:
-#             rows.append({
-#                 'jobid': item['jobid'],
-#                 'contact_name': item['contact_name'],
-#                 'contact_number': item['contact_number'],  # Use 'Undone' for tasks without a 'status'
-#                 'status': item['status'],
-#                 'timestamp': item['timestamp']
-#             })
-#     df = pd.DataFrame(rows)
-#     # Generate PDF
-#     pdf = generate_pdf(df)
-#     # Set up response
-#     response = Response(
-#         pdf,
-#         mimetype='application/pdf',
-#         headers={'Content-Disposition': 'attachment; filename=data.pdf'}
-#     )
-#     return response
+@app.route('/download_pdf')
+def download_pdf():
+    completed_task = session.get('completed_task', [])
+    uncompleted_task = session.get('uncompleted_task', [])
+    # data = {'completed_job': completed_task, 'uncompleted_job': uncompleted_task, "contacts": contact_persons}
+    # Combine completed and uncompleted job data
+    main_data = {'Done task': completed_task, 'Undone task': uncompleted_task}
+    # Efficient DataFrame creation
+    rows = []
+    for key, values in main_data.items():
+        for item in values:
+            rows.append({
+                'jobid': item['jobid'],
+                'contact_name': item['contact_name'],
+                'contact_number': item['contact_number'],  # Use 'Undone' for tasks without a 'status'
+                'status': item['status'],
+                'timestamp': item['timestamp']
+            })
+    df = pd.DataFrame(rows)
+    # Generate PDF
+    pdf = generate_pdf(df)
+    # Set up response
+    response = Response(
+        pdf,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': 'attachment; filename=data.pdf'}
+    )
+    return response
 
 
 @app.route("/download-vcf", methods=["POST"])
