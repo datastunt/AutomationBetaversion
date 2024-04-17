@@ -73,10 +73,10 @@ def handle_request(request_type):
 
 
 def take_qr_code_screenshot():
-    driver = handle_request("take_qr_code_screenshot")
+    driver = handle_request("take_qr_code_screenshot")    
     try:
-        qr_code_element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
+        time.sleep(20.5)
+        qr_code_element = driver.find_element(By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")
         # Get the location and size of the QR code element
         location = qr_code_element.location
         size = qr_code_element.size
