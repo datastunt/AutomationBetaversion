@@ -28,9 +28,6 @@ UPLOAD_FOLDER = 'static/uploads'
 COMPRESSED_FOLDER = 'static/compressed'
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov'}
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['COMPRESSED_FOLDER'] = COMPRESSED_FOLDER
-
 
 def handle_request(request_type):
     try:
@@ -118,7 +115,7 @@ def take_qr_code_screenshot():
 def check_user(session):
     driver = handle_request("check_user")
     try:
-        time.sleep(30.5)
+        time.sleep(15.5)
         select_user = driver.find_element(By.CSS_SELECTOR,
                                           "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")
         select_user.click()
@@ -202,7 +199,7 @@ def bulk_file_management(driver, bulk_file, media, text, session):
                             search_input.send_keys(letter)
                             time.sleep(0.1)
 
-                        time.sleep(2.1)
+                        time.sleep(3.5)
 
                         try:
                             # Check if contact is unavailable
@@ -316,6 +313,7 @@ def handle_send_button(driver, text, media, contact_count):
         send_button_selector = 'button[aria-label="Send"].x1c4vz4f.x2lah0s.xdl72j9.xfect85.x1iy03kw.x1lfpgzf'
         send_button = driver.find_element(By.CSS_SELECTOR, send_button_selector)
         send_button.click()
+    time.sleep(1.5)
 
 
 def handle_error_contact(name, e):
@@ -338,6 +336,8 @@ def compress_video(input_path, output_path):
 
 
 def upload_file(file):
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['COMPRESSED_FOLDER'] = COMPRESSED_FOLDER
     if file and allowed_file(file.filename):
         filename = file.filename
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
