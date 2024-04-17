@@ -139,27 +139,36 @@ def trace_current_status():
         connection.close()
 
 
-
 import datetime
 import time
 
 
-# To manage the job times
 def job_time():
     current_hour = datetime.datetime.now().strftime('%H:%M:%S')
-    # Checking if current time is between "10:00:00" and "23:59:59" or "00:00:00" and "05:00:00"
-    if "22:00:00" <= current_hour <= "23:59:59" or "00:00:00" <= current_hour <= "05:00:00":
-        print("Sleeping until 05:00:00")
-        # Calculate time difference until 05:00:00
-        target_time = datetime.datetime.strptime("05:00:00", "%H:%M:%S")
-        current_time = datetime.datetime.strptime(current_hour, "%H:%M:%S")
-        time_difference = (target_time - current_time).total_seconds()
-        time.sleep(time_difference)
+    target_time_str = "05:00:00"
+    before_time_str = "23:59:59"
 
+    # Convert current_hour to datetime object
+    current_time = datetime.datetime.strptime(current_hour, "%H:%M:%S")
+    # convert before_time_str to object
+    before_time = datetime.datetime.strptime(before_time_str, "%H:%M:%S")
+    # Convert target_time_str to datetime object
+    target_time = datetime.datetime.strptime(target_time_str, "%H:%M:%S")
+
+    # Check if target_time is earlier than current_time
+    if before_time < current_time < target_time:
+        # Add 1 day to target_time
+        print("time to sleep")
+        target_time += datetime.timedelta(days=1)
+        time_difference = (target_time - current_time).total_seconds()
+
+        # Check if time difference is negative
+        if time_difference < 0:
+            # Add 24 hours to time difference
+            time_difference += 24 * 3600  # 24 hours in seconds
+        time.sleep(time_difference)
     else:
         pass
 
 
-
-
-
+job_time()

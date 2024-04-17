@@ -10,14 +10,15 @@ from PIL import Image
 from io import BytesIO
 from flask import app, Flask
 from datetime import datetime
+from urllib3.exceptions import NewConnectionError
 from webdriver_setup import *
 from googletrans import Translator
 from matplotlib import pyplot as plt
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common import NoSuchElementException, InvalidSessionIdException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common import NoSuchElementException, InvalidSessionIdException, WebDriverException
 from datastorage import uncompleted_contact, completed_contact, current_contact_data_status, job_time
 
 app = Flask(__name__)
@@ -71,7 +72,8 @@ def handle_request(request_type):
 
 
 def take_qr_code_screenshot():
-    driver = handle_request("take_qr_code_screenshot")    
+    driver = handle_request("take_qr_code_screenshot")
+    time.sleep(12.5)
     try:
         qr_code_element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
@@ -93,11 +95,7 @@ def take_qr_code_screenshot():
         qr_code_image.save(qr_code_image_path)
         # Return the path to the image file
         return qr_code_image_path
-    except InvalidSessionIdException:
-        # Handle the exception by reinitializing the driver
-        handle_request("take_qr_code_screenshot")
-        # Retry the operation or take alternative actions as needed
-        # For example, you might want to log in again or navigate to the desired page.
+    except InvalidSessionIdException or NewConnectionError:
         take_qr_code_screenshot()
     except NoSuchElementException:
         # Handle the exception by closing the driver and reopening it
@@ -151,14 +149,14 @@ def user_logout():
 
 # This function is to run the job
 def run_automation(bulk_file, media, text, session):
+    job_time()
+    driver = handle_request("run_automation")
     try:
-        job_time()
-        driver = handle_request("run_automation")
         driver.get("https://web.whatsapp.com/")
         time.sleep(20.5)
 
         if not terminate_flag:
-            if media is None:
+            if media == "Invalid file format!":
                 media = None
             bulk_file_management(driver, bulk_file, media, text, session)
         else:

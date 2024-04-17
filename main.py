@@ -1,7 +1,6 @@
 import shutil
 import zipfile
 from engine import *
-from datastorage import trace_current_status
 from flask import Flask, render_template, request, Response, send_file, jsonify, session
 
 app = Flask(__name__)
@@ -50,12 +49,6 @@ def checker():
 def logout():
     user_logout()
     return render_template('index.html')
-
-
-@app.route("/job_update", methods=["GET"])
-def job_update():
-    last_contact = trace_current_status()
-    return last_contact
 
 
 @app.route("/kill_automation", methods=['GET'])
