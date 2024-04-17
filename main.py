@@ -1,44 +1,11 @@
 import shutil
 import zipfile
-import subprocess
 from engine import *
-import os
 from datastorage import trace_current_status
-from flask import Flask, render_template, request, Response, send_file, jsonify
+from flask import Flask, render_template, request, Response, send_file, jsonify, session
 
 app = Flask(__name__)
-
-UPLOAD_FOLDER = 'static/uploads'
-COMPRESSED_FOLDER = 'static/compressed'
-ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov'}
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['COMPRESSED_FOLDER'] = COMPRESSED_FOLDER
-
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def compress_video(input_path, output_path):
-    command = f'ffmpeg -i {input_path} -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -b:v 1M {output_path}'
-    subprocess.run(command, shell=True)
-
-
-def upload_file(file):
-    if file and allowed_file(file.filename):
-        filename = file.filename
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        if os.path.getsize(filepath) > 64 * 1024 * 1024:  # Check if file size is greater than 64MB
-            compressed_filename = f'compressed_{filename}'
-            compressed_filepath = os.path.join(app.config['COMPRESSED_FOLDER'], compressed_filename)
-            compress_video(filepath, compressed_filepath)
-            return compressed_filename
-        else:
-            return filename
-    else:
-        return 'Invalid file format!'
+app.secret_key = '@wpAutomation321'
 
 
 @app.route("/")
@@ -53,9 +20,16 @@ def automation():
     video = upload_file(video)
     text = request.form.get('message')
     bulk_file = request.files.get('bulkFile')
-    run_automation(bulk_file, video, text)
-    tasks = {"completed_task": completed_task, "uncompleted_task": uncompleted_task, "contact_length": contact_persons}
-    return render_template('logs_table.html', result=tasks)
+    run_automation(bulk_file, video, text, session)
+    completed_task = session.get('completed_task', [])
+    uncompleted_task = session.get('uncompleted_task', [])
+    contact_persons = session.get('contact_persons', [])
+    result = {
+        'completed_task': completed_task,
+        'uncompleted_task': uncompleted_task,
+        'contact_persons': contact_persons
+    }
+    return render_template('logs_table.html', result=result)
 
 
 @app.route("/qrcode", methods=['GET'])
@@ -66,7 +40,8 @@ def get_qrcode_scanner():
 
 @app.route("/checker", methods=['GET'])
 def checker():
-    user = check_user()
+    check_user(session)
+    user = session.get('username', [])
     return jsonify({"user": user})
 
 
@@ -90,19 +65,21 @@ def kill_automation_route():
 
 @app.route('/download_pdf')
 def download_pdf():
-    data = {'completed_job': completed_task, 'uncompleted_job': uncompleted_task, "contacts": contact_persons}
+    completed_task = session.get('completed_task', [])
+    uncompleted_task = session.get('uncompleted_task', [])
+    # data = {'completed_job': completed_task, 'uncompleted_job': uncompleted_task, "contacts": contact_persons}
     # Combine completed and uncompleted job data
-    main_data = {'Done task': data['completed_job'], 'Undone task': data['uncompleted_job']}
+    main_data = {'Done task': completed_task, 'Undone task': uncompleted_task}
     # Efficient DataFrame creation
     rows = []
     for key, values in main_data.items():
         for item in values:
             rows.append({
-                'JobID': item['JobID'],
-                'Sent to': item.get('contact', ''),
-                'Status': item.get('status', 'Undone'),  # Use 'Undone' for tasks without a 'status'
-                'Reason': item.get('reason', ''),
-                'Timestamp': item['timestamp']
+                'jobid': item['jobid'],
+                'contact_name': item['contact_name'],
+                'contact_number': item['contact_number'],  # Use 'Undone' for tasks without a 'status'
+                'status': item['status'],
+                'timestamp': item['timestamp']
             })
     df = pd.DataFrame(rows)
     # Generate PDF
@@ -141,7 +118,8 @@ def download_vcf():
         else:
             return "Error generating vCard files", 500
     except Exception as e:
-        # print("Error occurred during converting in vcf", e)
+        error_msg = f"Error occurred during downloading vcf : {str(e)}"
+        log_error(error_msg)
         pass
 
 

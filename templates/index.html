@@ -136,32 +136,25 @@
 
 
     <script>
-<!--        function updateMediaContentLabel(input) {-->
-<!--            var label = document.getElementById('media_content_label');-->
-<!--            label.innerText = input.files[0].name;-->
-<!--        }-->
+        function updateMediaContentLabel(input) {
+            var label = document.getElementById('media_content_label')
+            label.innerText = input.files[0].name
+        }
 
         function updateExcelContentLabel(input) {
             var label = document.getElementById('bulkFile_label');
             label.innerText = input.files[0].name;
         }
+
         function updateVcfContentLabel(input) {
             var label = document.getElementById('excelFile_Label');
             label.innerText = input.files[0].name;
         }
+
        function updateVideoContentLabel(input) {
                   var label = document.getElementById('video_content_label');
                   label.innerText = input.files[0].name;
-       }
-
-
-
-
-
-
-
-
-
+        }
 
 
         function showQRCode() {
@@ -206,53 +199,9 @@
                     document.body.addEventListener('click', hideQRCodeOnClick);
 
                     // Run checkUser() after processing QR code data
-                    return checkUser();
-                })
-                .then(existUser => {
-                    var qrCodeImg = document.getElementById('qrCodeImg');
-                    var qrCodeImgPop = document.getElementById('qrcodeImagePopup')
-                    var user = document.getElementById('login-user');
-                    var UserPop = document.getElementById('UserPopup');
-                    if (existUser) {
-                        user.innerText = "[" + existUser.user + " - User Logged In" + "]";
-                        user.style.display = 'block';
-                        UserPop.style.display = 'block';
-                        qrCodeImg.style.display = 'none';
-                        qrCodeImgPop.style.display = 'none';
-                        document.getElementById("logoutButton").style.display = 'block';
-                        document.getElementById("StartJob").style.display = 'block';
-                    } else {
-                        user.style.display = 'none';
-                        UserPop.style.display = 'none';
-                        qrCodeImg.style.display = 'none';
-                        qrCodeImgPop.style.display = 'none';
-                        document.getElementById("logoutButton").style.display = 'none';
-                        document.getElementById("StartJob").style.display = 'none';
-
-                        // Hide the username popup after 15 seconds
-                        setTimeout(function () {
-                            hideUserNameOnClick();
-                        }, 15000); // 15 seconds in milliseconds
-
-                        // Add event listener to hide username when clicked anywhere
-                        document.body.addEventListener('click', hideUserNameOnClick);
-                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                });
-        }
-
-        function checkUser() {
-            return fetch('/checker')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .catch(error => {
-                    console.error('Error checking user:', error);
                 });
         }
 
@@ -264,19 +213,6 @@
         function hideQRCode() {
             document.getElementById('qrcodeImagePopup').style.display = 'none';
         }
-
-        function hideUserNameOnClick() {
-            hideUserName();
-            document.body.removeEventListener('click', hideUserNameOnClick);
-        }
-
-        function hideUserName() {
-            var userNamePopup = document.getElementById('UserPopup');
-            userNamePopup.style.display = 'none';
-        }
-
-
-
     </script>
 </body>
 
