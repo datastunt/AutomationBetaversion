@@ -8,7 +8,7 @@ import matplotlib
 import pandas as pd
 from PIL import Image
 from io import BytesIO
-from main import app
+from flask import app, Flask
 from datetime import datetime
 from webdriver_setup import *
 from googletrans import Translator
@@ -20,6 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datastorage import uncompleted_contact, completed_contact, current_contact_data_status, job_time
 
+app = Flask(__name__)
 matplotlib.use('Agg')
 terminate_flag = False
 outer_driver = None
@@ -75,6 +76,7 @@ def handle_request(request_type):
 def take_qr_code_screenshot():
     driver = handle_request("take_qr_code_screenshot")
     try:
+        time.sleep(10.5)
         qr_code_element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "canvas[aria-label='Scan me!']")))
         # Get the location and size of the QR code element
