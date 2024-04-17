@@ -20,36 +20,38 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install apt-utils to avoid debconf warning
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
+    apt-utils \
+    wget \
+    bzip2 \
  && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Firefox 115 ESR
-# Install apt-utils to avoid debconf warning and install Firefox
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-     apt-utils \
-     wget \
-     bzip2 \
-     && FIREFOX_INSTALL_DIR="/opt/firefox" \
-     && mkdir -p $FIREFOX_INSTALL_DIR \
-     && wget -O /tmp/firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=linux64&lang=en-US" \
-     && tar xjf /tmp/firefox.tar.bz2 -C $FIREFOX_INSTALL_DIR --strip-components=1 \
-     && ln -s $FIREFOX_INSTALL_DIR/firefox /usr/bin/firefox \
-     && rm /tmp/firefox.tar.bz2 \
-  && rm -rf /var/lib/apt/lists/*
+ && apt-get install -y --no-install-recommends \
+    wget \
+    bzip2 \
+ && FIREFOX_INSTALL_DIR="/opt/firefox" \
+ && mkdir -p $FIREFOX_INSTALL_DIR \
+ && wget -O /tmp/firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=linux64&lang=en-US" \
+ && tar xjf /tmp/firefox.tar.bz2 -C $FIREFOX_INSTALL_DIR --strip-components=1 \
+ && ln -s $FIREFOX_INSTALL_DIR/firefox /usr/bin/firefox \
+ && rm /tmp/firefox.tar.bz2 \
+ && rm -rf /var/lib/apt/lists/*
 
 # Download and install geckodriver
 ARG GECKODRIVER_VERSION=0.34.0
-RUN apt-get update && apt-get install -y wget unzip && \
-    wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
-    tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
-    mv geckodriver /usr/local/bin/ && \
-    chmod +x /usr/local/bin/geckodriver && \    # Set executable permissions
-    rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+ && apt-get install -y wget unzip \
+ && wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
+ && tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
+ && mv geckodriver /usr/local/bin/ \
+ && chmod +x /usr/local/bin/geckodriver \
+ && rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 # Set environment variable to enable headless mode for Firefox
 #ENV MOZ_HEADLESS=1
