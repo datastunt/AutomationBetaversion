@@ -119,4 +119,4 @@ def download_vcf():
 
 if __name__ == "__main__":
     # Get the port from the environment variable, defaulting to 8080 if not set
-    app.run(debug=True)
+    app.run(port=8080, host="0.0.0.0")
