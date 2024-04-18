@@ -16,7 +16,7 @@ COPY vcards /app/vcards
 COPY cloudbuild.yaml /app/cloudbuild.yaml
 COPY requirements.txt /app/requirements.txt
 
-# Set environment variable to prevent debconf from prompting for user input
+# Set environment variable to prevent debconf from prompting
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install apt-utils to avoid debconf warning
