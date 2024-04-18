@@ -7,8 +7,10 @@ def firefox_browser():
     options = FirefoxOptions()
     options.add_argument('--no-sandbox')
     options.add_argument("--headless")
-    executable_path = "/usr/local/bin/geckodriver"  # Set the path to Geckodriver
-    return webdriver.Firefox(service=Service(executable_path), options=options)
+    firefox_binary_path = "/usr/bin/firefox"  # Adjust this path according to your system
+    options.binary_location = firefox_binary_path
+    service = Service("/usr/local/bin/geckodriver")  # Set the path to Geckodriver
+    return webdriver.Firefox(service=service, options=options)
 
 
 
