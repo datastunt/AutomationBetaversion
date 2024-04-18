@@ -197,7 +197,7 @@ def bulk_file_management(driver, bulk_file, media, text, session):
                             search_input.send_keys(letter)
                             time.sleep(0.1)
 
-                        time.sleep(3.5)
+                        time.sleep(2.1)
 
                         try:
                             # Check if contact is unavailable
@@ -424,7 +424,7 @@ def generate_pdf(df):
 def create_vcf(input_excel):
     try:
         # Read Excel file into DataFrame
-        df = pd.read_excel(input_excel)
+        df = pd.read_excel(input_excel, dtype={'Number': str})  # Force 'Number' column to be read as string
 
         # Create output directory for vCards
         output_dir = "vcards"
@@ -465,5 +465,5 @@ def create_vcf(input_excel):
         return vcf_paths
     except Exception as e:
         error_msg = f"Error occurred during converting vcf : {str(e)}"
-        log_error(error_msg)
-        pass
+        log_error(error_msg)  # Make sure log_error function is properly implemented
+        raise  # Reraise the exception for further handling or debugging
