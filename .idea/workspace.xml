@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="61abd885-2272-4141-99bb-c23c7e8fb3f6" name="Changes" comment="firefox downloader" />
+    <list default="true" id="61abd885-2272-4141-99bb-c23c7e8fb3f6" name="Changes" comment="firefox nondownloader" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -42,7 +42,7 @@
     "Python.webdriver_setup.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "D:/Automation"
+    "last_opened_file_path": "D:/playwrightAutomation"
   }
 }]]></component>
   <component name="RunManager">
@@ -114,7 +114,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713446854872</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="firefox nondownloader">
+      <option name="closed" value="true" />
+      <created>1713446912531</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1713446912531</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -130,6 +138,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="firefox downloader" />
-    <option name="LAST_COMMIT_MESSAGE" value="firefox downloader" />
+    <MESSAGE value="firefox nondownloader" />
+    <option name="LAST_COMMIT_MESSAGE" value="firefox nondownloader" />
   </component>
 </project>
