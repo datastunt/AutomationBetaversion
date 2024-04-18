@@ -30,19 +30,6 @@ RUN apt-get update \
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Firefox 115 ESR
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    wget \
-    bzip2 \
- && FIREFOX_INSTALL_DIR="/opt/firefox" \
- && mkdir -p $FIREFOX_INSTALL_DIR \
- && wget -O /tmp/firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=linux64&lang=en-US" \
- && tar xjf /tmp/firefox.tar.bz2 -C $FIREFOX_INSTALL_DIR --strip-components=1 \
- && ln -s $FIREFOX_INSTALL_DIR/firefox /usr/bin/firefox \
- && rm /tmp/firefox.tar.bz2 \
- && rm -rf /var/lib/apt/lists/*
-
 # Download and install geckodriver
 ARG GECKODRIVER_VERSION=0.34.0
 RUN apt-get update \
@@ -54,9 +41,6 @@ RUN apt-get update \
  && rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
-
-# Set environment variable to enable headless mode for Firefox
-#ENV MOZ_HEADLESS=1
 
 # Expose port 8080
 EXPOSE 8080
