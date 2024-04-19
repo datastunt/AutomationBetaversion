@@ -177,6 +177,8 @@ def bulk_file_management(driver, bulk_file, media, text, session):
             session['contact_persons'] = contact_persons  # Update session data
             contact_count = 1
             for number, name in contacts_list:
+                if contact_count == 100:
+                    time.sleep()
                 job_time()
                 name = str(name).strip()
                 if not terminate_flag:
