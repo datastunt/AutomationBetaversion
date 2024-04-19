@@ -11,6 +11,5 @@ def firefox_browser():
 
     # Set the path to Firefox binary
     options.binary_location = '/usr/bin/firefox'  # Update this path to your Firefox binary
-
-    executor = "/usr/local/bin/geckodriver"  # Set the path to Geckodriver
-    return webdriver.Firefox(service=Service(executor), options=options)
+    service = Service(executable_path="/usr/local/bin/geckodriver")
+    return webdriver.Firefox(service=service, options=options)
