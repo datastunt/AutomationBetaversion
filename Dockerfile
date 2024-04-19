@@ -27,6 +27,12 @@ RUN apt-get update \
     bzip2 \
  && rm -rf /var/lib/apt/lists/*
 
+# Install Firefox ESR 115
+RUN wget -O firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-115.0esr-SSL&os=linux64&lang=en-US" \
+ && tar xjf firefox.tar.bz2 -C /opt/ \
+ && ln -s /opt/firefox/firefox /usr/bin/firefox \
+ && rm firefox.tar.bz2
+
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
