@@ -1,5 +1,5 @@
 # Use a base image with Python 3.12
-FROM python:3.12
+FROM python:3.11
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -27,11 +27,13 @@ RUN apt-get update \
     bzip2 \
  && rm -rf /var/lib/apt/lists/*
 
-# Install Firefox ESR 115
-RUN wget -O firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-115.0esr-SSL&os=linux64&lang=en-US" \
- && tar xjf firefox.tar.bz2 -C /opt/ \
- && ln -s /opt/firefox/firefox /usr/bin/firefox \
- && rm firefox.tar.bz2
+
+
+ RUN FIREFOX_SETUP=firefox-setup.tar.bz2 && \
+        wget -O $FIREFOX_SETUP "https://download.mozilla.org/?product=firefox-115.0esr-SSL&os=linux64&lang=en-US" && \
+        tar xjf $FIREFOX_SETUP -C /opt/ && \
+        ln -s /opt/firefox/firefox /usr/bin/firefox && \
+        rm $FIREFOX_SETUP
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
