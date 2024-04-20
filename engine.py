@@ -18,7 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common import NoSuchElementException, InvalidSessionIdException, WebDriverException
+from selenium.common.exceptions import InvalidSessionIdException, WebDriverException, NoSuchElementException
 from datastorage import uncompleted_contact, completed_contact, current_contact_data_status, job_time
 
 app = Flask(__name__)
@@ -178,7 +178,7 @@ def bulk_file_management(driver, bulk_file, media, text, session):
             contact_count = 1
             for number, name in contacts_list:
                 if contact_count == 100:
-                    time.sleep()
+                    session.clear()
                 job_time()
                 name = str(name).strip()
                 if not terminate_flag:

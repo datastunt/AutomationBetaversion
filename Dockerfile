@@ -1,5 +1,5 @@
 # Use a base image with Python 3.12
-FROM python:3.11
+FROM python:3.12
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -41,16 +41,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Download and install geckodriver
 ARG GECKODRIVER_VERSION=0.34.0
 RUN apt-get update \
- && apt-get install -y wget unzip \
- && wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
- && tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
- && mv geckodriver /usr/local/bin/ \
- && chmod +x /usr/local/bin/geckodriver \
- && rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+     && apt-get install -y wget unzip \
+     && wget https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
+     && tar -xvzf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
+     && mv geckodriver /usr/local/bin/ \
+     && chmod +x /usr/local/bin/geckodriver \
+     && rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz \
+     && apt-get clean \
+     && rm -rf /var/lib/apt/lists/*
 
-# Expose port 8080
+# Expose port 80
 EXPOSE 8080
 
 # Set the entry point for the container
