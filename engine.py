@@ -18,7 +18,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import InvalidSessionIdException, WebDriverException, NoSuchElementException
+from selenium.common.exceptions import InvalidSessionIdException, WebDriverException, NoSuchElementException, \
+    TimeoutException
 from datastorage import uncompleted_contact, completed_contact, current_contact_data_status, job_time
 
 app = Flask(__name__)
@@ -95,7 +96,11 @@ def take_qr_code_screenshot():
         qr_code_image.save(qr_code_image_path)
         # Return the path to the image file
         return qr_code_image_path
-    except InvalidSessionIdException or NewConnectionError:
+    except InvalidSessionIdException:
+        take_qr_code_screenshot()
+    except NewConnectionError:
+        take_qr_code_screenshot()
+    except TimeoutException:
         take_qr_code_screenshot()
     except NoSuchElementException:
         # Handle the exception by closing the driver and reopening it
@@ -105,7 +110,7 @@ def take_qr_code_screenshot():
         select_user = driver.find_element(By.CSS_SELECTOR,
                                           "div.x10l6tqk.x13vifvy.x17qophe.x78zum5.x6s0dn4.xl56j7k.xh8yej3.x5yr21d.x705qin.xsp8fsz")
         select_user.click()
-        time.sleep(1.2)
+        time.sleep(2.2)
         login_user = driver.find_element(By.CSS_SELECTOR, "div.xdod15v._ao3e.selectable-text.copyable-text")
         return login_user.text
 
@@ -181,13 +186,15 @@ def bulk_file_management(driver, bulk_file, media, text, session):
                     session.clear()
                 job_time()
                 name = str(name).strip()
+
                 if not terminate_flag:
                     try:
+                        time.sleep(float(generate_random_time()))   # random time break before searching name.
                         # Find the search input textbox
                         search_btn = WebDriverWait(driver, 10).until(
                             EC.element_to_be_clickable((By.CSS_SELECTOR, "div[title='New chat']")))
                         search_btn.click()
-                        time.sleep(2.5)
+                        time.sleep(2.1)
 
                         # Find the search box
                         search_input = WebDriverWait(driver, 5).until(
@@ -394,6 +401,14 @@ def kill_automation():
     global terminate_flag
     terminate_flag = True
     return terminate_flag
+
+
+def generate_random_time():
+    seconds_list = [1, 2, 3, 4, 5]
+    li_item = random.choice(seconds_list)
+    sequence = [f'{li_item}.{i}' for i in range(li_item, 11)]
+    random_time = random.choice(sequence)
+    return random_time
 
 
 # TO generate job ID
