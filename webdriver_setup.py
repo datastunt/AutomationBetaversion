@@ -1,14 +1,14 @@
-import os
+
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 
 def firefox_browser():
-    options = FirefoxOptions()
+    options = Options()
     options.add_argument('--no-sandbox')
     options.add_argument("--headless")
-
+    options.binary_location = r'/usr/bin/firefox-esr'
     # Set the path to Firefox binary
-    executable_path = os.environ.get("/usr/local/bin/geckodriver")
-    return webdriver.Firefox(service=Service(executable_path), options=options)
+    service = Service('/usr/local/bin/geckodriver')
+    return webdriver.Firefox(options=options, service=service)
